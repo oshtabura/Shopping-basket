@@ -1,11 +1,12 @@
 package com.adthena.shopping.basket.core.job
 
 import com.adthena.shopping.basket.core.ops.{DiscountCalculator, SubtotalCalculator}
-import com.adthena.shopping.basket.core.Job
 import com.adthena.shopping.basket.core.utils.ResultBuilder
+import com.adthena.shopping.basket.core.{Job, Validation}
 
 class PriceBasketJob(basket: List[String],
                      products: Map[String, BigDecimal],
+                     basketValidation: Validation[Iterable[String]],
                      subtotalCalculator: SubtotalCalculator,
                      discountCalculator: DiscountCalculator,
                      resultBuilder: ResultBuilder)
@@ -16,6 +17,8 @@ class PriceBasketJob(basket: List[String],
       .map(_.toLowerCase)
       .groupBy(identity)
       .mapValues(_.length)
+
+    basketValidation.verify(groupedBasket.keys)
 
     resultBuilder
       .withSubtotal(subtotalCalculator.calculate(groupedBasket, products))

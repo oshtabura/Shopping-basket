@@ -22,6 +22,10 @@ class FormatterSpec extends UnitSpec {
     formatter.noOfferMessage() should equal("(No offers available)")
   }
 
+  it should "show correct message for missing item" in {
+    formatter.missingItemMessage("cup") should equal("Warning: shop doesn't have 'cup'")
+  }
+
   it should "show correct message for subtotal" in {
     formatter.subtotalMessage(BigDecimal(1.1)) should equal("Subtotal: £1.10")
   }

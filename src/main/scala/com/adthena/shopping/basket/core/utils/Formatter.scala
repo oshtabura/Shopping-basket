@@ -6,6 +6,9 @@ import java.text.NumberFormat
 
 class Formatter(currencyFormat: NumberFormat) {
 
+  def missingItemMessage(item: String): String =
+    s"Warning: shop doesn't have '$item'"
+
   def subtotalMessage(subtotal: BigDecimal): String = {
     "Subtotal: %s".format(currencyFormat.format(subtotal))
   }

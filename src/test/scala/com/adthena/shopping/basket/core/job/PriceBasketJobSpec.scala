@@ -1,8 +1,8 @@
 package com.adthena.shopping.basket.core.job
 
 import com.adthena.shopping.basket.core.ops.{DiscountCalculator, SubtotalCalculator}
-import com.adthena.shopping.basket.core.UnitSpec
 import com.adthena.shopping.basket.core.utils.ResultBuilder
+import com.adthena.shopping.basket.core.{UnitSpec, Validation}
 import org.mockito.Mockito
 
 class PriceBasketJobSpec extends UnitSpec {
@@ -13,6 +13,7 @@ class PriceBasketJobSpec extends UnitSpec {
     val subtotalCalculatorMock = mock[SubtotalCalculator]
     val discountCalculatorMock = mock[DiscountCalculator]
     val resultBuilderMock      = mock[ResultBuilder]
+    val basketValidationMock   = mock[Validation[Iterable[String]]]
     val subtotal               = 0.3
     val discounts              = List.empty
     val expectedResult         = "result"
@@ -26,7 +27,12 @@ class PriceBasketJobSpec extends UnitSpec {
     Mockito.when(subtotalCalculatorMock.calculate(groupedBasket, products)).thenReturn(subtotal)
     Mockito.when(discountCalculatorMock.calculate(groupedBasket, products)).thenReturn(discounts)
 
-    val job = new PriceBasketJob(basket, products, subtotalCalculatorMock, discountCalculatorMock, resultBuilderMock)
+    val job = new PriceBasketJob(basket,
+                                 products,
+                                 basketValidationMock,
+                                 subtotalCalculatorMock,
+                                 discountCalculatorMock,
+                                 resultBuilderMock)
 
     // run
     val actualResult = job.process()
@@ -38,6 +44,7 @@ class PriceBasketJobSpec extends UnitSpec {
     Mockito.verify(resultBuilderMock).withSubtotal(subtotal)
     Mockito.verify(resultBuilderMock).withDiscounts(discounts)
     Mockito.verify(resultBuilderMock).build()
+    Mockito.verify(basketValidationMock).verify(groupedBasket.keys)
     Mockito.verifyNoMoreInteractions(subtotalCalculatorMock, discountCalculatorMock, resultBuilderMock)
   }
 }

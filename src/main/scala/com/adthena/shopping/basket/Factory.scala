@@ -1,16 +1,16 @@
 package com.adthena.shopping.basket
 
+import com.adthena.shopping.basket.core.Job
 import com.adthena.shopping.basket.core.job.PriceBasketJob
 import com.adthena.shopping.basket.core.model.Special
 import com.adthena.shopping.basket.core.ops.{DiscountCalculator, ProductDiscount, SpecialDiscount, SubtotalCalculator}
-import com.adthena.shopping.basket.core.utils.{Formatter, ResultBuilder}
-import com.adthena.shopping.basket.core.Job
+import com.adthena.shopping.basket.core.utils.{BasketValidation, Formatter, ResultBuilder}
 import com.typesafe.config.ConfigFactory
 
 import java.text.NumberFormat
 import java.util
 import java.util.Locale
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 
 object Factory {
   val config = ConfigFactory.load
@@ -33,19 +33,18 @@ object Factory {
           BigDecimal(map.get(Config.SpecialDiscountAmount).asInstanceOf[String])
       ))
       .toList
-
+    val products = loadMap(Config.Products)
     new PriceBasketJob(
       arguments.toList,
-      loadMap(Config.Products),
+      products,
+      new BasketValidation(products.keys.toList, createFormatter()),
       new SubtotalCalculator(),
       new DiscountCalculator(
         List(
           new ProductDiscount(loadMap(Config.ProductDiscounts)),
           new SpecialDiscount(specialDiscounts)
         )),
-      ResultBuilder(
-        new Formatter(NumberFormat.getCurrencyInstance(
-          new Locale(config.getString(Config.LocaleLanguage), config.getString(Config.LocaleCountry)))))
+      ResultBuilder(createFormatter())
     )
   }
 
@@ -56,5 +55,11 @@ object Factory {
       .asScala
       .map(entry => (entry.getKey, BigDecimal(entry.getValue.unwrapped().asInstanceOf[String])))
       .toMap
+  }
+
+  private def createFormatter(): Formatter = {
+    new Formatter(
+      NumberFormat.getCurrencyInstance(
+        new Locale(config.getString(Config.LocaleLanguage), config.getString(Config.LocaleCountry))))
   }
 }
