@@ -6,15 +6,19 @@ import java.util.StringJoiner
 
 case class ResultBuilder(formatter: Formatter,
                          subtotal: BigDecimal = Utils.Zero,
-                         discounts: List[DiscountData] = List.empty) {
+                         discounts: List[DiscountData] = List.empty,
+                         errors: Iterable[String] = List.empty) {
 
   def withSubtotal(subtotal: BigDecimal): ResultBuilder = copy(subtotal = subtotal)
 
   def withDiscounts(discounts: List[DiscountData]): ResultBuilder = copy(discounts = discounts)
 
+  def withErrors(errors: Iterable[String]): ResultBuilder = copy(errors = errors)
+
   def build(): String = {
     val result = new StringJoiner("\n", "", "\n")
-      .add(subtotalMessage())
+    errors.foreach(result.add)
+    result.add(subtotalMessage())
 
     discountMessages().foreach(result.add)
 

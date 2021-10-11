@@ -22,6 +22,8 @@ class PriceBasketJobSpec extends UnitSpec {
     Mockito
       .when(resultBuilderMock.withSubtotal(subtotal))
       .thenReturn(resultBuilderMock)
+    Mockito.when(basketValidationMock.verify(groupedBasket.keys)).thenReturn(List.empty)
+    Mockito.when(resultBuilderMock.withErrors(List.empty)).thenReturn(resultBuilderMock)
     Mockito.when(resultBuilderMock.withDiscounts(discounts)).thenReturn(resultBuilderMock)
     Mockito.when(resultBuilderMock.build()).thenReturn(expectedResult)
     Mockito.when(subtotalCalculatorMock.calculate(groupedBasket, products)).thenReturn(subtotal)
@@ -43,6 +45,7 @@ class PriceBasketJobSpec extends UnitSpec {
     Mockito.verify(discountCalculatorMock).calculate(groupedBasket, products)
     Mockito.verify(resultBuilderMock).withSubtotal(subtotal)
     Mockito.verify(resultBuilderMock).withDiscounts(discounts)
+    Mockito.verify(resultBuilderMock).withErrors(List.empty)
     Mockito.verify(resultBuilderMock).build()
     Mockito.verify(basketValidationMock).verify(groupedBasket.keys)
     Mockito.verifyNoMoreInteractions(subtotalCalculatorMock, discountCalculatorMock, resultBuilderMock)

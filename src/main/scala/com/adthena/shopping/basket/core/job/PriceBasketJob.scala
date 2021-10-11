@@ -18,9 +18,8 @@ class PriceBasketJob(basket: List[String],
       .groupBy(identity)
       .mapValues(_.length)
 
-    basketValidation.verify(groupedBasket.keys)
-
     resultBuilder
+      .withErrors(basketValidation.verify(groupedBasket.keys))
       .withSubtotal(subtotalCalculator.calculate(groupedBasket, products))
       .withDiscounts(discountCalculator.calculate(groupedBasket, products))
       .build()

@@ -19,12 +19,13 @@ class ResultBuilderSpec extends UnitSpec {
 
     //run
     val actualResult = resultBuilder
+      .withErrors(List("Warning: missing product"))
       .withDiscounts(List(discountDataMock))
       .withSubtotal(subtotal)
       .build()
 
     //test
-    actualResult should equal("5.1\ndiscount\ntotal\n")
+    actualResult should equal("Warning: missing product\n5.1\ndiscount\ntotal\n")
   }
 
   it should "show now discounts" in {
